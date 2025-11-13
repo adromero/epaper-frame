@@ -1,0 +1,1048 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>E-Paper Photo Frame</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        .header {
+            text-align: center;
+            color: white;
+            margin-bottom: 30px;
+        }
+
+        .header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+        }
+
+        .header p {
+            opacity: 0.9;
+            font-size: 1.1em;
+        }
+
+        .card {
+            background: white;
+            border-radius: 15px;
+            padding: 25px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+            margin-bottom: 20px;
+        }
+
+        .upload-area {
+            border: 3px dashed #667eea;
+            border-radius: 10px;
+            padding: 40px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s;
+            background: #f8f9ff;
+        }
+
+        .upload-area:hover {
+            border-color: #764ba2;
+            background: #f0f2ff;
+        }
+
+        .upload-area.dragover {
+            border-color: #764ba2;
+            background: #e8ebff;
+            transform: scale(1.02);
+        }
+
+        .upload-icon {
+            font-size: 3em;
+            margin-bottom: 15px;
+        }
+
+        .upload-text {
+            font-size: 1.2em;
+            color: #667eea;
+            font-weight: 600;
+            margin-bottom: 10px;
+        }
+
+        .upload-hint {
+            color: #888;
+            font-size: 0.9em;
+        }
+
+        #fileInput {
+            display: none;
+        }
+
+        .btn {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 12px 30px;
+            border-radius: 25px;
+            font-size: 1em;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-weight: 600;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+
+        .btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .btn-danger {
+            background: linear-gradient(135deg, #ff6b6b 0%, #ee5a6f 100%);
+            padding: 8px 20px;
+            font-size: 0.9em;
+        }
+
+        .btn-success {
+            background: linear-gradient(135deg, #51cf66 0%, #37b24d 100%);
+            padding: 8px 20px;
+            font-size: 0.9em;
+        }
+
+        .message {
+            padding: 15px;
+            border-radius: 10px;
+            margin-top: 15px;
+            display: none;
+        }
+
+        .message.success {
+            background: #d3f9d8;
+            color: #2b8a3e;
+            border: 1px solid #51cf66;
+        }
+
+        .message.error {
+            background: #ffe3e3;
+            color: #c92a2a;
+            border: 1px solid #ff6b6b;
+        }
+
+        .gallery {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 15px;
+            margin-top: 20px;
+        }
+
+        .image-card {
+            background: white;
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+            transition: all 0.3s;
+            cursor: pointer;
+            position: relative;
+        }
+
+        .image-card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
+        }
+
+        .image-card.current {
+            border: 3px solid #51cf66;
+        }
+
+        .image-thumbnail {
+            width: 100%;
+            height: 150px;
+            object-fit: cover;
+            background: #f0f0f0;
+        }
+
+        .image-info {
+            padding: 10px;
+        }
+
+        .image-name {
+            font-weight: 600;
+            margin-bottom: 5px;
+            word-break: break-all;
+            font-size: 0.75em;
+            display: -webkit-box;
+            -webkit-line-clamp: 1;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+        }
+
+        .current-badge {
+            background: #51cf66;
+            color: white;
+            padding: 4px 10px;
+            border-radius: 15px;
+            font-size: 0.75em;
+            font-weight: 600;
+            margin-bottom: 10px;
+            display: inline-block;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 20px;
+            color: #888;
+        }
+
+        .spinner {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid rgba(102, 126, 234, 0.3);
+            border-radius: 50%;
+            border-top-color: #667eea;
+            animation: spin 1s ease-in-out infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        .filter-section {
+            display: flex;
+            gap: 15px;
+            align-items: center;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+
+        .filter-section label {
+            font-weight: 600;
+            color: #333;
+        }
+
+        .filter-select {
+            flex: 1;
+            min-width: 200px;
+            padding: 10px 15px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 1em;
+            background: white;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .filter-select:hover {
+            border-color: #667eea;
+        }
+
+        .filter-select:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        .user-ip-badge {
+            background: #f0f2ff;
+            color: #667eea;
+            padding: 6px 12px;
+            border-radius: 15px;
+            font-size: 0.85em;
+            font-weight: 600;
+        }
+
+        .uploader-badge {
+            background: #e8f5e9;
+            color: #2e7d32;
+            padding: 3px 8px;
+            border-radius: 10px;
+            font-size: 0.75em;
+            font-weight: 600;
+            margin-bottom: 8px;
+            display: inline-block;
+        }
+
+        .uploader-badge.other {
+            background: #fff3e0;
+            color: #e65100;
+        }
+
+        /* Modal styles */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.9);
+            animation: fadeIn 0.3s;
+        }
+
+        .modal.active {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal-content {
+            background: white;
+            border-radius: 15px;
+            max-width: 90%;
+            max-height: 90%;
+            overflow: auto;
+            position: relative;
+            animation: slideIn 0.3s;
+        }
+
+        .modal-close {
+            position: absolute;
+            right: 15px;
+            top: 15px;
+            font-size: 30px;
+            font-weight: bold;
+            color: #666;
+            cursor: pointer;
+            z-index: 1001;
+            background: white;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.2);
+        }
+
+        .modal-close:hover {
+            color: #000;
+        }
+
+        .modal-image-container {
+            padding: 20px;
+            text-align: center;
+        }
+
+        .modal-image {
+            max-width: 100%;
+            max-height: 60vh;
+            border-radius: 10px;
+        }
+
+        .modal-details {
+            padding: 20px;
+            border-top: 1px solid #e0e0e0;
+        }
+
+        .modal-actions {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+            margin-top: 15px;
+        }
+
+        /* Name input section */
+        .name-section {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        .name-input {
+            flex: 1;
+            min-width: 200px;
+            padding: 10px 15px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 1em;
+        }
+
+        .name-input:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .btn-edit {
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+        }
+
+        /* Loading spinner on buttons */
+        .btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+
+        .btn-spinner {
+            display: inline-block;
+            width: 14px;
+            height: 14px;
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            border-radius: 50%;
+            border-top-color: white;
+            animation: spin 0.8s linear infinite;
+            margin-right: 5px;
+        }
+
+        /* Footer styles */
+        .footer {
+            margin-top: 30px;
+            padding: 20px;
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 15px;
+            text-align: center;
+        }
+
+        .footer h3 {
+            margin-bottom: 15px;
+            color: #333;
+        }
+
+        .ip-list {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        .ip-item {
+            background: #f0f2ff;
+            padding: 12px 20px;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .ip-label {
+            font-weight: 600;
+            color: #667eea;
+        }
+
+        .ip-value {
+            font-family: monospace;
+            font-size: 1.1em;
+            color: #333;
+        }
+
+        .copy-btn {
+            background: #667eea;
+            color: white;
+            border: none;
+            padding: 6px 12px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 0.85em;
+            transition: all 0.3s;
+        }
+
+        .copy-btn:hover {
+            background: #5568d3;
+        }
+
+        .copy-btn.copied {
+            background: #51cf66;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        @keyframes slideIn {
+            from { transform: translateY(-50px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        @media (max-width: 1024px) {
+            .gallery {
+                grid-template-columns: repeat(3, 1fr);
+            }
+        }
+
+        @media (max-width: 768px) {
+            .gallery {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+
+        @media (max-width: 600px) {
+            .header h1 {
+                font-size: 2em;
+            }
+
+            .gallery {
+                grid-template-columns: repeat(2, 1fr);
+            }
+
+            .filter-section {
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            .filter-select {
+                min-width: 100%;
+            }
+
+            .ip-list {
+                flex-direction: column;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>E-Paper Photo Frame</h1>
+            <p>Upload images to display on your 7-color e-paper display</p>
+        </div>
+
+        <div class="card">
+            <div class="upload-area" id="uploadArea">
+                <div class="upload-icon">📷</div>
+                <div class="upload-text">Click or drag image here to upload</div>
+                <div class="upload-hint">Supports PNG, JPG, GIF, and BMP (max 16MB)</div>
+                <input type="file" id="fileInput" accept="image/*" multiple>
+            </div>
+            <div id="message" class="message"></div>
+        </div>
+
+        <div class="card">
+            <h2 style="margin-bottom: 15px;">Your Identity</h2>
+            <div class="name-section">
+                <span class="user-ip-badge" id="currentUserIp">Your IP: Loading...</span>
+                <input type="text" id="nameInput" class="name-input" placeholder="Enter your name (optional)" maxlength="50">
+                <button class="btn btn-edit" id="saveNameBtn">Set Name</button>
+            </div>
+        </div>
+
+        <div class="card">
+            <h2 style="margin-bottom: 15px;">Photo Gallery</h2>
+            <div class="filter-section">
+                <label for="userFilter">Filter by:</label>
+                <select id="userFilter" class="filter-select">
+                    <option value="all">All Photos</option>
+                    <option value="me">My Photos</option>
+                </select>
+            </div>
+            <div id="loading" class="loading">
+                <div class="spinner"></div>
+                <div>Loading images...</div>
+            </div>
+            <div id="gallery" class="gallery"></div>
+        </div>
+
+        <div class="footer">
+            <h3>Share This Photo Frame</h3>
+            <div class="ip-list" id="ipList">
+                <div class="spinner"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal for full-size image -->
+    <div id="imageModal" class="modal">
+        <div class="modal-content">
+            <span class="modal-close" id="modalClose">&times;</span>
+            <div class="modal-image-container">
+                <img id="modalImage" class="modal-image" src="" alt="">
+            </div>
+            <div class="modal-details">
+                <h3 id="modalImageName"></h3>
+                <p id="modalImageMeta"></p>
+                <p id="modalImageUploader"></p>
+                <div class="modal-actions">
+                    <button class="btn btn-success" id="modalDisplayBtn">Display on Frame</button>
+                    <button class="btn btn-danger" id="modalDeleteBtn">Delete</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const uploadArea = document.getElementById('uploadArea');
+        const fileInput = document.getElementById('fileInput');
+        const message = document.getElementById('message');
+        const gallery = document.getElementById('gallery');
+        const loading = document.getElementById('loading');
+        const userFilter = document.getElementById('userFilter');
+        const currentUserIpEl = document.getElementById('currentUserIp');
+        const nameInput = document.getElementById('nameInput');
+        const saveNameBtn = document.getElementById('saveNameBtn');
+        const imageModal = document.getElementById('imageModal');
+        const modalClose = document.getElementById('modalClose');
+        const modalImage = document.getElementById('modalImage');
+        const modalImageName = document.getElementById('modalImageName');
+        const modalImageMeta = document.getElementById('modalImageMeta');
+        const modalImageUploader = document.getElementById('modalImageUploader');
+        const modalDisplayBtn = document.getElementById('modalDisplayBtn');
+        const modalDeleteBtn = document.getElementById('modalDeleteBtn');
+        const ipList = document.getElementById('ipList');
+
+        let currentImage = null;
+        let currentUserIp = null;
+        let currentUserName = null;
+        let currentModalImage = null;
+
+        // Modal event listeners
+        modalClose.addEventListener('click', closeModal);
+        imageModal.addEventListener('click', (e) => {
+            if (e.target === imageModal) closeModal();
+        });
+
+        // Name save button
+        saveNameBtn.addEventListener('click', saveUserName);
+        nameInput.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') saveUserName();
+        });
+
+        // Click to upload
+        uploadArea.addEventListener('click', () => fileInput.click());
+
+        // Drag and drop
+        uploadArea.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            uploadArea.classList.add('dragover');
+        });
+
+        uploadArea.addEventListener('dragleave', () => {
+            uploadArea.classList.remove('dragover');
+        });
+
+        uploadArea.addEventListener('drop', (e) => {
+            e.preventDefault();
+            uploadArea.classList.remove('dragover');
+            const files = e.dataTransfer.files;
+            handleFiles(files);
+        });
+
+        fileInput.addEventListener('change', (e) => {
+            handleFiles(e.target.files);
+        });
+
+        async function handleFiles(files) {
+            for (let file of files) {
+                await uploadFile(file);
+            }
+            loadImages();
+            loadUsers(); // Refresh user list after uploads
+        }
+
+        async function uploadFile(file) {
+            const formData = new FormData();
+            formData.append('file', file);
+
+            try {
+                showMessage(`Uploading ${file.name}...`, 'success');
+                const response = await fetch('/api/upload', {
+                    method: 'POST',
+                    body: formData
+                });
+
+                const data = await response.json();
+
+                if (data.success) {
+                    showMessage(`${file.name} uploaded successfully!`, 'success');
+
+                    // Update current user IP if we got it from the response
+                    if (data.uploader_ip && !currentUserIp) {
+                        currentUserIp = data.uploader_ip;
+                        updateUserDisplay();
+                    }
+                } else {
+                    showMessage(`Error: ${data.error}`, 'error');
+                }
+            } catch (error) {
+                showMessage(`Failed to upload: ${error.message}`, 'error');
+            }
+        }
+
+        function updateUserDisplay() {
+            if (currentUserName) {
+                currentUserIpEl.textContent = `You: ${currentUserName}`;
+                nameInput.value = currentUserName;
+            } else if (currentUserIp) {
+                currentUserIpEl.textContent = `Your IP: ${currentUserIp}`;
+            }
+        }
+
+        async function saveUserName() {
+            const name = nameInput.value.trim();
+            if (!name) {
+                showMessage('Please enter a name', 'error');
+                return;
+            }
+
+            setButtonLoading(saveNameBtn, true);
+
+            try {
+                const response = await fetch('/api/user/name', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ name })
+                });
+
+                const data = await response.json();
+
+                if (data.success) {
+                    currentUserName = name;
+                    currentUserIp = data.ip;
+                    updateUserDisplay();
+                    showMessage('Name saved successfully!', 'success');
+                    loadImages(); // Refresh to show new name
+                    loadUsers(); // Refresh user list
+                } else {
+                    showMessage(`Error: ${data.error}`, 'error');
+                }
+            } catch (error) {
+                showMessage(`Failed to save name: ${error.message}`, 'error');
+            } finally {
+                setButtonLoading(saveNameBtn, false);
+            }
+        }
+
+        function setButtonLoading(button, loading) {
+            if (loading) {
+                button.disabled = true;
+                const spinner = document.createElement('span');
+                spinner.className = 'btn-spinner';
+                button.insertBefore(spinner, button.firstChild);
+            } else {
+                button.disabled = false;
+                const spinner = button.querySelector('.btn-spinner');
+                if (spinner) spinner.remove();
+            }
+        }
+
+        function openModal(image) {
+            currentModalImage = image;
+            modalImage.src = `/uploads/${image.filename}`;
+            modalImageName.textContent = image.filename;
+
+            const date = new Date(image.uploaded);
+            modalImageMeta.textContent = `${(image.size / 1024).toFixed(1)} KB • ${date.toLocaleDateString()} ${date.toLocaleTimeString()}`;
+
+            const isMyImage = image.uploader_ip === currentUserIp;
+            modalImageUploader.textContent = `Uploaded by: ${image.uploader_name}${isMyImage ? ' (You)' : ''}`;
+
+            imageModal.classList.add('active');
+        }
+
+        function closeModal() {
+            imageModal.classList.remove('active');
+            currentModalImage = null;
+        }
+
+        modalDisplayBtn.addEventListener('click', async () => {
+            if (!currentModalImage) return;
+            setButtonLoading(modalDisplayBtn, true);
+            await displayImage(currentModalImage.filename);
+            setButtonLoading(modalDisplayBtn, false);
+            closeModal();
+        });
+
+        modalDeleteBtn.addEventListener('click', async () => {
+            if (!currentModalImage) return;
+            if (!confirm(`Delete ${currentModalImage.filename}?`)) return;
+
+            setButtonLoading(modalDeleteBtn, true);
+            await deleteImage(currentModalImage.filename);
+            setButtonLoading(modalDeleteBtn, false);
+            closeModal();
+        });
+
+        function showMessage(text, type) {
+            message.textContent = text;
+            message.className = `message ${type}`;
+            message.style.display = 'block';
+            setTimeout(() => {
+                message.style.display = 'none';
+            }, 5000);
+        }
+
+        async function loadImages() {
+            loading.style.display = 'block';
+            gallery.innerHTML = '';
+
+            try {
+                // Build URL with filter parameter
+                const filterValue = userFilter.value;
+                let url = '/api/images';
+                if (filterValue === 'me' && currentUserIp) {
+                    url = `/api/images?user=${encodeURIComponent(currentUserIp)}`;
+                } else if (filterValue !== 'all' && filterValue !== 'me') {
+                    // Filtering by specific user IP
+                    url = `/api/images?user=${encodeURIComponent(filterValue)}`;
+                }
+
+                const response = await fetch(url);
+                const data = await response.json();
+                currentImage = data.current_image;
+
+                loading.style.display = 'none';
+
+                if (data.images.length === 0) {
+                    const filterMsg = filterValue === 'all' ? 'No images uploaded yet. Upload your first image above!' :
+                                     filterValue === 'me' ? 'You haven\'t uploaded any images yet.' :
+                                     'This user has no images.';
+                    gallery.innerHTML = `<p style="text-align: center; color: #888;">${filterMsg}</p>`;
+                    return;
+                }
+
+                data.images.forEach(image => {
+                    const card = createImageCard(image);
+                    gallery.appendChild(card);
+                });
+            } catch (error) {
+                loading.style.display = 'none';
+                gallery.innerHTML = '<p style="text-align: center; color: #c92a2a;">Failed to load images</p>';
+            }
+        }
+
+        function createImageCard(image) {
+            const card = document.createElement('div');
+            card.className = 'image-card';
+            if (image.filename === currentImage) {
+                card.classList.add('current');
+            }
+
+            // Make card clickable
+            card.addEventListener('click', () => openModal(image));
+
+            const img = document.createElement('img');
+            img.className = 'image-thumbnail';
+            img.src = `/uploads/${image.filename}`;
+            img.alt = image.filename;
+
+            const info = document.createElement('div');
+            info.className = 'image-info';
+
+            if (image.filename === currentImage) {
+                const badge = document.createElement('div');
+                badge.className = 'current-badge';
+                badge.textContent = 'Currently Displayed';
+                info.appendChild(badge);
+            }
+
+            // Show uploader badge
+            const uploaderBadge = document.createElement('div');
+            const isMyImage = image.uploader_ip === currentUserIp;
+            uploaderBadge.className = isMyImage ? 'uploader-badge' : 'uploader-badge other';
+            uploaderBadge.textContent = isMyImage ? 'You' : image.uploader_name;
+            info.appendChild(uploaderBadge);
+
+            const name = document.createElement('div');
+            name.className = 'image-name';
+            name.textContent = image.filename;
+
+            info.appendChild(name);
+
+            card.appendChild(img);
+            card.appendChild(info);
+
+            return card;
+        }
+
+        async function displayImage(filename) {
+            try {
+                showMessage(`Displaying ${filename} on e-paper...`, 'success');
+                const response = await fetch(`/api/display/${filename}`, {
+                    method: 'POST'
+                });
+
+                const data = await response.json();
+
+                if (data.success) {
+                    showMessage('Image displayed successfully!', 'success');
+                    loadImages();
+                } else {
+                    showMessage(`Error: ${data.error}`, 'error');
+                }
+            } catch (error) {
+                showMessage(`Failed to display image: ${error.message}`, 'error');
+            }
+        }
+
+        async function deleteImage(filename) {
+            if (!confirm(`Delete ${filename}?`)) return;
+
+            try {
+                const response = await fetch(`/api/delete/${filename}`, {
+                    method: 'DELETE'
+                });
+
+                const data = await response.json();
+
+                if (data.success) {
+                    showMessage('Image deleted successfully', 'success');
+                    loadImages();
+                    loadUsers(); // Refresh user list
+                } else {
+                    showMessage(`Error: ${data.error}`, 'error');
+                }
+            } catch (error) {
+                showMessage(`Failed to delete image: ${error.message}`, 'error');
+            }
+        }
+
+        async function loadUsers() {
+            try {
+                const response = await fetch('/api/users');
+                const data = await response.json();
+
+                // Store the current filter value
+                const currentFilter = userFilter.value;
+
+                // Clear existing options except the first two
+                while (userFilter.options.length > 2) {
+                    userFilter.remove(2);
+                }
+
+                // Add each user as an option
+                data.users.forEach(user => {
+                    const option = document.createElement('option');
+                    option.value = user.ip;
+                    const displayName = user.name !== user.ip ? user.name : user.ip;
+                    option.textContent = `${displayName} (${user.image_count} ${user.image_count === 1 ? 'photo' : 'photos'})`;
+                    userFilter.appendChild(option);
+                });
+
+                // Restore the previous filter selection if it still exists
+                if (currentFilter !== 'all' && currentFilter !== 'me') {
+                    const optionExists = Array.from(userFilter.options).some(opt => opt.value === currentFilter);
+                    if (optionExists) {
+                        userFilter.value = currentFilter;
+                    }
+                }
+            } catch (error) {
+                console.error('Failed to load users:', error);
+            }
+        }
+
+        async function loadServerInfo() {
+            try {
+                const response = await fetch('/api/server-info');
+                const data = await response.json();
+
+                ipList.innerHTML = '';
+
+                if (data.local_ip && data.local_ip !== 'Unable to detect') {
+                    const localUrl = `http://${data.local_ip}:${data.port}`;
+                    ipList.appendChild(createIPItem('Local Network', localUrl));
+                }
+
+                if (data.tailscale_ip && data.tailscale_ip !== 'Not available') {
+                    const tailscaleUrl = `http://${data.tailscale_ip}:${data.port}`;
+                    ipList.appendChild(createIPItem('Tailscale', tailscaleUrl));
+                }
+
+                if (ipList.children.length === 0) {
+                    ipList.innerHTML = '<p style="color: #888;">Server info unavailable</p>';
+                }
+            } catch (error) {
+                console.error('Failed to load server info:', error);
+                ipList.innerHTML = '<p style="color: #888;">Failed to load server info</p>';
+            }
+        }
+
+        function createIPItem(label, url) {
+            const item = document.createElement('div');
+            item.className = 'ip-item';
+
+            const labelEl = document.createElement('span');
+            labelEl.className = 'ip-label';
+            labelEl.textContent = label + ':';
+
+            const valueEl = document.createElement('span');
+            valueEl.className = 'ip-value';
+            valueEl.textContent = url;
+
+            const copyBtn = document.createElement('button');
+            copyBtn.className = 'copy-btn';
+            copyBtn.textContent = 'Copy';
+            copyBtn.addEventListener('click', () => {
+                navigator.clipboard.writeText(url).then(() => {
+                    copyBtn.textContent = 'Copied!';
+                    copyBtn.classList.add('copied');
+                    setTimeout(() => {
+                        copyBtn.textContent = 'Copy';
+                        copyBtn.classList.remove('copied');
+                    }, 2000);
+                });
+            });
+
+            item.appendChild(labelEl);
+            item.appendChild(valueEl);
+            item.appendChild(copyBtn);
+
+            return item;
+        }
+
+        async function initializeApp() {
+            // Load initial images
+            await loadImages();
+
+            // Load users and check for current user's name
+            await loadUsers();
+
+            // Load server info for footer
+            await loadServerInfo();
+
+            // Try to detect current user from existing images
+            try {
+                const usersResponse = await fetch('/api/users');
+                const usersData = await usersResponse.json();
+
+                const imagesResponse = await fetch('/api/images');
+                const imagesData = await imagesResponse.json();
+
+                // If there's only one user and they have images, assume that's the current user
+                if (usersData.users.length === 1 && imagesData.images.length > 0) {
+                    const user = usersData.users[0];
+                    currentUserIp = user.ip;
+                    if (user.name !== user.ip) {
+                        currentUserName = user.name;
+                    }
+                    updateUserDisplay();
+                } else {
+                    currentUserIpEl.textContent = 'Your identity will be shown after first upload';
+                }
+            } catch (err) {
+                console.error('Failed to initialize user:', err);
+                currentUserIpEl.textContent = 'Your identity will be shown after first upload';
+            }
+        }
+
+        // Add filter change listener
+        userFilter.addEventListener('change', loadImages);
+
+        // Initialize app on page load
+        initializeApp();
+
+        // Auto-refresh every 30 seconds
+        setInterval(() => {
+            loadImages();
+            loadUsers();
+        }, 30000);
+    </script>
+</body>
+</html>

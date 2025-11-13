@@ -1,0 +1,14 @@
+[Unit]
+Description=E-Paper Photo Frame Image Rotation Timer
+Requires=epaper-rotate.service
+
+[Timer]
+# Run every hour
+OnCalendar=hourly
+# Run 5 minutes after boot
+OnBootSec=5min
+# If the system was off when a timer should have run, run it once
+Persistent=true
+
+[Install]
+WantedBy=timers.target

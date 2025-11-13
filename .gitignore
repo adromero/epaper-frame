@@ -1,0 +1,32 @@
+# Uploaded images (user data)
+uploads/*
+!uploads/.gitkeep
+
+# State files
+state.json
+current_image.json
+metadata.json
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+*.egg-info/
+venv/
+env/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
