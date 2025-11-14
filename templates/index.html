@@ -427,6 +427,8 @@
             display: flex;
             align-items: center;
             gap: 10px;
+            flex-wrap: wrap;
+            max-width: 100%;
         }
 
         .ip-label {
@@ -438,6 +440,8 @@
             font-family: monospace;
             font-size: 1.1em;
             color: #333;
+            word-break: break-all;
+            max-width: 400px;
         }
 
         .copy-btn {
@@ -594,6 +598,16 @@
             .ip-list {
                 flex-direction: column;
             }
+
+            .name-section {
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            .ip-value {
+                font-size: 0.9em;
+                max-width: 100%;
+            }
         }
     </style>
 </head>
@@ -622,10 +636,12 @@
                     <span style="font-size: 1.1em; font-weight: 600; color: #333;" id="displayedName"></span>
                     <button class="btn btn-edit btn-small" id="editNameBtn">Change Name</button>
                 </div>
-                <div id="nameEditForm" style="display: none; flex: 1; display: flex; gap: 10px;">
-                    <input type="text" id="nameInput" class="name-input" placeholder="Enter your name" maxlength="50" style="flex: 1;">
-                    <button class="btn btn-edit" id="saveNameBtn">Save</button>
-                    <button class="btn" id="cancelNameBtn" style="background: #999;">Cancel</button>
+                <div id="nameEditForm" style="display: none; flex: 1; min-width: 0;">
+                    <div style="display: flex; gap: 10px; flex-wrap: wrap;">
+                        <input type="text" id="nameInput" class="name-input" placeholder="Enter your name" maxlength="50" style="flex: 1; min-width: 150px;">
+                        <button class="btn btn-edit" id="saveNameBtn">Save</button>
+                        <button class="btn" id="cancelNameBtn" style="background: #999;">Cancel</button>
+                    </div>
                 </div>
             </div>
         </div>
