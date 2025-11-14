@@ -4,7 +4,14 @@
       "name": "E-Paper Frame",
       "device_type": "epaper",
       "registered": "2025-11-13T18:05:13.411110",
-      "last_seen": "2025-11-13T18:06:54.598571",
+      "last_seen": "2025-11-13T21:00:01.374916",
+      "metadata": {}
+    },
+    "cyber-kiosk-001": {
+      "name": "Cyber Kiosk",
+      "device_type": "display",
+      "registered": "2025-11-13T20:37:00.728322",
+      "last_seen": "2025-11-13T21:47:02.679802",
       "metadata": {}
     }
   }

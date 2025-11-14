@@ -2,6 +2,7 @@
 import os
 import sys
 from flask import Flask, render_template, request, jsonify, send_from_directory
+from flask_cors import CORS
 from werkzeug.utils import secure_filename
 from datetime import datetime
 import json
@@ -18,6 +19,9 @@ DEVICES_FILE = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'devices
 app = Flask(__name__)
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 app.config['MAX_CONTENT_LENGTH'] = MAX_FILE_SIZE
+
+# Enable CORS for all routes
+CORS(app)
 
 def allowed_file(filename):
     return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS

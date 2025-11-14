@@ -1,12 +1,12 @@
 [Unit]
-Description=E-Paper Photo Frame Web Server
+Description=FrameSync Web Server
 After=network.target
 
 [Service]
 Type=simple
 User=r2
-WorkingDirectory=/home/r2/epaper-frame
-ExecStart=/usr/bin/python3 /home/r2/epaper-frame/server.py
+WorkingDirectory=/home/r2/frame-sync
+ExecStart=/usr/bin/python3 /home/r2/frame-sync/server.py
 Restart=always
 RestartSec=10
 StandardOutput=journal

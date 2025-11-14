@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>E-Paper Photo Frame</title>
+    <title>FrameSync</title>
     <style>
         * {
             margin: 0;
@@ -13,7 +13,7 @@
 
         body {
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: linear-gradient(135deg, #0f2027 0%, #203a43 50%, #2c5364 100%);
             min-height: 100vh;
             padding: 20px;
         }
@@ -48,23 +48,23 @@
         }
 
         .upload-area {
-            border: 3px dashed #667eea;
+            border: 3px dashed #14b8a6;
             border-radius: 10px;
             padding: 40px;
             text-align: center;
             cursor: pointer;
             transition: all 0.3s;
-            background: #f8f9ff;
+            background: #f0fdfa;
         }
 
         .upload-area:hover {
-            border-color: #764ba2;
-            background: #f0f2ff;
+            border-color: #0d9488;
+            background: #ccfbf1;
         }
 
         .upload-area.dragover {
-            border-color: #764ba2;
-            background: #e8ebff;
+            border-color: #0d9488;
+            background: #99f6e4;
             transform: scale(1.02);
         }
 
@@ -75,7 +75,7 @@
 
         .upload-text {
             font-size: 1.2em;
-            color: #667eea;
+            color: #0d9488;
             font-weight: 600;
             margin-bottom: 10px;
         }
@@ -90,7 +90,7 @@
         }
 
         .btn {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: linear-gradient(135deg, #14b8a6 0%, #0d9488 100%);
             color: white;
             border: none;
             padding: 12px 30px;
@@ -103,7 +103,7 @@
 
         .btn:hover {
             transform: translateY(-2px);
-            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+            box-shadow: 0 5px 15px rgba(20, 184, 166, 0.4);
         }
 
         .btn:disabled {
@@ -211,9 +211,9 @@
             display: inline-block;
             width: 20px;
             height: 20px;
-            border: 3px solid rgba(102, 126, 234, 0.3);
+            border: 3px solid rgba(20, 184, 166, 0.3);
             border-radius: 50%;
-            border-top-color: #667eea;
+            border-top-color: #14b8a6;
             animation: spin 1s ease-in-out infinite;
         }
 
@@ -247,18 +247,18 @@
         }
 
         .filter-select:hover {
-            border-color: #667eea;
+            border-color: #14b8a6;
         }
 
         .filter-select:focus {
             outline: none;
-            border-color: #667eea;
-            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+            border-color: #14b8a6;
+            box-shadow: 0 0 0 3px rgba(20, 184, 166, 0.1);
         }
 
         .user-ip-badge {
-            background: #f0f2ff;
-            color: #667eea;
+            background: #ccfbf1;
+            color: #0f766e;
             padding: 6px 12px;
             border-radius: 15px;
             font-size: 0.85em;
@@ -375,11 +375,11 @@
 
         .name-input:focus {
             outline: none;
-            border-color: #667eea;
+            border-color: #14b8a6;
         }
 
         .btn-edit {
-            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            background: linear-gradient(135deg, #06b6d4 0%, #0891b2 100%);
         }
 
         /* Loading spinner on buttons */
@@ -421,7 +421,7 @@
         }
 
         .ip-item {
-            background: #f0f2ff;
+            background: #ccfbf1;
             padding: 12px 20px;
             border-radius: 10px;
             display: flex;
@@ -431,7 +431,7 @@
 
         .ip-label {
             font-weight: 600;
-            color: #667eea;
+            color: #0f766e;
         }
 
         .ip-value {
@@ -441,7 +441,7 @@
         }
 
         .copy-btn {
-            background: #667eea;
+            background: #14b8a6;
             color: white;
             border: none;
             padding: 6px 12px;
@@ -452,7 +452,7 @@
         }
 
         .copy-btn:hover {
-            background: #5568d3;
+            background: #0d9488;
         }
 
         .copy-btn.copied {
@@ -505,7 +505,7 @@
         }
 
         .device-type-badge {
-            background: #667eea;
+            background: #14b8a6;
             color: white;
             padding: 3px 10px;
             border-radius: 12px;
@@ -600,8 +600,8 @@
 <body>
     <div class="container">
         <div class="header">
-            <h1>E-Paper Photo Frame</h1>
-            <p>Upload images to display on your 7-color e-paper display</p>
+            <h1>FrameSync</h1>
+            <p>Sync and display photos across all your devices</p>
         </div>
 
         <div class="card">
@@ -618,8 +618,15 @@
             <h2 style="margin-bottom: 15px;">Your Identity</h2>
             <div class="name-section">
                 <span class="user-ip-badge" id="currentUserIp">Your IP: Loading...</span>
-                <input type="text" id="nameInput" class="name-input" placeholder="Enter your name (optional)" maxlength="50">
-                <button class="btn btn-edit" id="saveNameBtn">Set Name</button>
+                <div id="nameDisplay" style="display: none;">
+                    <span style="font-size: 1.1em; font-weight: 600; color: #333;" id="displayedName"></span>
+                    <button class="btn btn-edit btn-small" id="editNameBtn">Change Name</button>
+                </div>
+                <div id="nameEditForm" style="display: none; flex: 1; display: flex; gap: 10px;">
+                    <input type="text" id="nameInput" class="name-input" placeholder="Enter your name" maxlength="50" style="flex: 1;">
+                    <button class="btn btn-edit" id="saveNameBtn">Save</button>
+                    <button class="btn" id="cancelNameBtn" style="background: #999;">Cancel</button>
+                </div>
             </div>
         </div>
 
@@ -652,7 +659,7 @@
         </div>
 
         <div class="footer">
-            <h3>Share This Photo Frame</h3>
+            <h3>Share FrameSync</h3>
             <div class="ip-list" id="ipList">
                 <div class="spinner"></div>
             </div>
@@ -694,6 +701,11 @@
         const currentUserIpEl = document.getElementById('currentUserIp');
         const nameInput = document.getElementById('nameInput');
         const saveNameBtn = document.getElementById('saveNameBtn');
+        const nameDisplay = document.getElementById('nameDisplay');
+        const nameEditForm = document.getElementById('nameEditForm');
+        const displayedName = document.getElementById('displayedName');
+        const editNameBtn = document.getElementById('editNameBtn');
+        const cancelNameBtn = document.getElementById('cancelNameBtn');
         const imageModal = document.getElementById('imageModal');
         const modalClose = document.getElementById('modalClose');
         const modalImage = document.getElementById('modalImage');
@@ -722,8 +734,10 @@
             if (e.target === imageModal) closeModal();
         });
 
-        // Name save button
+        // Name management buttons
         saveNameBtn.addEventListener('click', saveUserName);
+        editNameBtn.addEventListener('click', enterEditMode);
+        cancelNameBtn.addEventListener('click', exitEditMode);
         nameInput.addEventListener('keypress', (e) => {
             if (e.key === 'Enter') saveUserName();
         });
@@ -791,11 +805,33 @@
 
         function updateUserDisplay() {
             if (currentUserName) {
-                currentUserIpEl.textContent = `You: ${currentUserName}`;
-                nameInput.value = currentUserName;
+                currentUserIpEl.textContent = `Your IP: ${currentUserIp}`;
+                displayedName.textContent = currentUserName;
+                nameDisplay.style.display = 'flex';
+                nameDisplay.style.gap = '10px';
+                nameDisplay.style.alignItems = 'center';
+                nameEditForm.style.display = 'none';
             } else if (currentUserIp) {
                 currentUserIpEl.textContent = `Your IP: ${currentUserIp}`;
+                nameDisplay.style.display = 'none';
+                nameEditForm.style.display = 'flex';
+            } else {
+                currentUserIpEl.textContent = 'Your identity will be shown after first upload';
+                nameDisplay.style.display = 'none';
+                nameEditForm.style.display = 'none';
             }
+        }
+
+        function enterEditMode() {
+            nameInput.value = currentUserName || '';
+            nameDisplay.style.display = 'none';
+            nameEditForm.style.display = 'flex';
+            nameInput.focus();
+        }
+
+        function exitEditMode() {
+            nameInput.value = '';
+            updateUserDisplay();
         }
 
         async function saveUserName() {
@@ -819,6 +855,7 @@
                 if (data.success) {
                     currentUserName = name;
                     currentUserIp = data.ip;
+                    nameInput.value = '';
                     updateUserDisplay();
                     showMessage('Name saved successfully!', 'success');
                     loadImages(); // Refresh to show new name
