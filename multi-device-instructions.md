@@ -1,13 +1,13 @@
 # Multi-Device Support
 
-This e-paper photo frame now supports serving images to multiple devices on your local network or Tailscale network. Each image can be assigned to specific devices, giving you control over what displays where.
+FrameSync supports serving images to multiple display devices on your local network or Tailscale network. Each image can be assigned to specific devices, giving you control over what displays where. Whether you're using e-paper displays, tablets, smart displays, or any device that can fetch images via HTTP, FrameSync provides a unified API for managing your photo distribution.
 
 ## Overview
 
 The system uses a device registry where each device has:
 - A unique UUID identifier
 - A human-readable name
-- A device type (e.g., "epaper", "display")
+- A device type (e.g., "epaper", "tablet", "lcd", "display")
 - Registration and last-seen timestamps
 
 Images are assigned to devices through the web interface or API. Only devices that have been granted access to an image can retrieve it.
@@ -16,8 +16,9 @@ Images are assigned to devices through the web interface or API. Only devices th
 
 ### Device Registration
 - Devices self-register with a UUID they generate
-- The e-paper frame automatically registers on first run and is assigned all existing images
-- Additional devices can be added through the web UI or API
+- The primary e-paper display (if configured) automatically registers on first run and is assigned all existing images
+- Additional display devices can be added through the web UI or API
+- Any device type can be registered: e-paper displays, tablets, smart displays, LCD screens, etc.
 
 ### Image Permissions
 - By default, newly uploaded images are not assigned to any devices
@@ -231,12 +232,12 @@ while True:
 
 SERVER="http://192.168.1.100:5000"
 DEVICE_ID="550e8400-e29b-41d4-a716-446655440000"
-DEVICE_NAME="Bedroom Display"
+DEVICE_NAME="Kitchen Tablet"
 
 # Register device
 curl -X POST "$SERVER/api/devices/register" \
   -H "Content-Type: application/json" \
-  -d "{\"device_id\":\"$DEVICE_ID\",\"name\":\"$DEVICE_NAME\",\"device_type\":\"display\"}"
+  -d "{\"device_id\":\"$DEVICE_ID\",\"name\":\"$DEVICE_NAME\",\"device_type\":\"tablet\"}"
 
 # Get next image
 IMAGE_URL=$(curl -s "$SERVER/api/devices/$DEVICE_ID/next" | jq -r '.url')
@@ -292,10 +293,11 @@ feh --fullscreen /tmp/current_image.jpg
 
 ## Backward Compatibility
 
-- Existing e-paper functionality is fully preserved
+- If you have an e-paper display configured, all existing functionality is fully preserved
 - On first run, the e-paper device auto-registers and is assigned all existing images
-- The hourly rotation continues to work as before
-- Legacy images without device assignments will be automatically assigned to the e-paper device
+- The hourly rotation continues to work as before for e-paper displays
+- Legacy images without device assignments will be automatically assigned to the e-paper device (if configured)
+- The system works perfectly fine without any e-paper display - you can use it purely as a photo server for other display types
 
 ## Troubleshooting
 
